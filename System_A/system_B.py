@@ -1,6 +1,9 @@
 import cv2
 import numpy as np
 from Utility import Utility as util
+import sys
+# from scipy.stats import mannwhitneyu
+np.set_printoptions(threshold=sys.maxsize)
 
 
 class faceDetect():
@@ -8,6 +11,9 @@ class faceDetect():
     probeSet = []
     gallarySetData = []
     probeSetData = []
+    setSize = 10
+    divideFactor = 10
+
     utility = util
     kernelDeNoise = np.array([[1, 1, 1],
                               [1, 1, 1],
@@ -22,13 +28,15 @@ class faceDetect():
                              [-1, -1, -1]])
 
     def __init__(self):
-        pass
+        self.gallarySetDataA = np.zeros(
+            (self.setSize, self.divideFactor, self.divideFactor))
+        self.probeSetDataA = np.zeros(
+            (self.setSize, self.divideFactor, self.divideFactor))
 
     def readInImages(self):
         path1 = '../GallerySet/'
         path2 = '../ProbeSet/'
-        setsize = 100
-        for i in range(1, setsize):
+        for i in range(1, self.setSize+1):
             self.gallarySet.append(cv2.imread(path1 + 'subject' +
                                               str(i) + '_img1.pgm', cv2.COLOR_BGR2GRAY))
             self.probeSet.append(cv2.imread(path2 + 'subject' +
@@ -64,11 +72,45 @@ class faceDetect():
                     self.probeSet[z][i][j] = quantize * 64
 
     def splitImage(self):
-        for i in range(len(self.probeSet)):
-            tempProbe = np.split(self.probeSet[i], 5, axis=1)
-            tempGallary = np.split(self.gallarySet[i], 5, axis=1)
-            self.probeSetData.append(tempProbe)
-            self.gallarySetData.append(tempGallary)
+        gallary = np.array(self.gallarySet)
+        probe = np.array(self.probeSet)
+        tempProbe = []
+        tempGallary = []
+        probeAverage = []
+        gallaryAverage = []
+        setcount = int(50/self.divideFactor)
+        for i in range(len(gallary)):
+            for j in range(0, gallary[i].shape[0], setcount):
+                for k in range(0, gallary[i].shape[1], setcount):
+                    tempGallary.append(gallary[i][j:j+5, k:k+5])
+                    tempProbe.append(probe[i][j:j+5, k:k+5])
+        self.gallarySetData = np.array_split(tempGallary, self.setSize)
+        self.probeSetData = np.array_split(tempProbe, self.setSize)
+        print(np.array(self.gallarySetData).shape)
+        for i in range(len(self.gallarySetData)):
+            for j in range(len(self.gallarySetData[i])):
+                gallaryAverage.append(np.average(self.gallarySetData[i][j]))
+                probeAverage.append(np.average(self.probeSetData[i][j]))
+        self.gallarySetDataA = np.array_split(gallaryAverage, self.setSize)
+        self.ProbeSetDataA = np.array_split(probeAverage, self.setSize)
+        print(self.gallarySetDataA[1])
+        print(self.probeSetDataA[1])
+        # print(self.probeSetData)
+
+    def averageRegions(self):
+        pass
+        # print(self.gallarySetData)
+        # print(self.probeSetData)
+
+    def diffScore(self):
+        # for i in range(len(self.gallarySetDataA)):
+        # # print(self.gallarySetDataA)
+        # print(self.gallarySetDataA)
+        # print(self.probeSetDataA)
+
+        # print(temp)
+
+        pass
 
     def upscale(self, image, amount):
         newimage = cv2.resize(image, (0, 0), fx=amount, fy=amount)
@@ -92,5 +134,7 @@ if __name__ == "__main__":
     faceDetect().readInImages()
     faceDetect().lookForFeatures()
     faceDetect().splitImage()
-    faceDetect().upsacleSet(4)
-    faceDetect().displayImages()
+    # faceDetect().averageRegions()
+    # faceDetect().diffScore()
+    # faceDetect().upsacleSet(4)
+    # faceDetect().displayImages()
