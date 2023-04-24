@@ -13,7 +13,7 @@ class faceDetect():
     gallaryMask = []
     probeMask = []
     setSize = 100
-    divideFactor = 3
+    divideFactor = 5
 
     utility = util
     kernelBlur = np.array([[1, 4, 6, 4, 1],
@@ -49,10 +49,14 @@ class faceDetect():
         newProbeSet = np.zeros(np.array(self.probeSet).shape)
         for z in range(len(self.gallarySet)):
 
-            self.gallarySet[z] = util.convolveImage(
-                util, self.gallarySet[z], self.kernelBlur, 1.0 / 256)
-            self.gallarySet[z] = util.convolveImage(
-                util, self.gallarySet[z], self.kernelBlur, 1.0 / 256)
+            # self.gallarySet[z] = util.convolveImage(
+            #     util, self.gallarySet[z], self.kernelBlur, 1.0 / 256)
+            # self.gallarySet[z] = util.convolveImage(
+            #     util, self.gallarySet[z], self.kernelBlur, 1.0 / 256)
+            # self.gallarySet[z] = util.convolveImage(
+            #     util, self.gallarySet[z], self.kernelBlur, 1.0 / 256)
+            # self.gallarySet[z] = util.convolveImage(
+            #     util, self.gallarySet[z], self.kernelBlur, 1.0 / 256)
 
             thresh = self.imageAverage(self.gallarySet[z])
             newIm = [[]]
@@ -63,12 +67,18 @@ class faceDetect():
                         newGallarySet[z][i][j] = 1
                     else:
                         newGallarySet[z][i][j] = 0
+            # newGallarySet[z] = util.erode(util, newGallarySet[z])
+            # newGallarySet[z] = util.dialate(util, newGallarySet[z])
 
         for z in range(len(self.probeSet)):
-            self.probeSet[z] = util.convolveImage(
-                util, self.probeSet[z], self.kernelBlur, 1.0 / 256)
-            self.probeSet[z] = util.convolveImage(
-                util, self.probeSet[z], self.kernelBlur, 1.0 / 256)
+            # self.probeSet[z] = util.convolveImage(
+            #     util, self.probeSet[z], self.kernelBlur, 1.0 / 256)
+            # self.probeSet[z] = util.convolveImage(
+            #     util, self.probeSet[z], self.kernelBlur, 1.0 / 256)
+            # self.probeSet[z] = util.convolveImage(
+            #     util, self.probeSet[z], self.kernelBlur, 1.0 / 256)
+            # self.probeSet[z] = util.convolveImage(
+            #     util, self.probeSet[z], self.kernelBlur, 1.0 / 256)
 
             thresh = self.imageAverage(self.probeSet[z])
             newIm = [[]]
@@ -79,6 +89,8 @@ class faceDetect():
                         newProbeSet[z][i][j] = 1
                     else:
                         newProbeSet[z][i][j] = 0
+            # newProbeSet[z] = util.erode(util, newProbeSet[z])
+            # newProbeSet[z] = util.dialate(util, newProbeSet[z])
         self.gallaryMask = newGallarySet
         self.probeMask = newProbeSet
 

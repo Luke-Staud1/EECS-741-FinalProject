@@ -3,6 +3,10 @@ import numpy as np
 
 
 class Utility():
+    kernelDeNoise = np.array([[1, 1, 1],
+                              [1, 1, 1],
+                              [1, 1, 1]])
+
     def __init__(self):
         pass
 
@@ -59,7 +63,7 @@ class Utility():
 
     def dialate(self, image):
         newImage = np.zeros(image.shape)
-        tempImage = self.convolveImage(image, self.kernelDeNoise)
+        tempImage = self.convolveImage(self, image, self.kernelDeNoise)
         for row in range(tempImage.shape[0]):
             for col in range(tempImage.shape[1]):
                 if tempImage[row][col] > 0:
@@ -68,7 +72,7 @@ class Utility():
 
     def erode(self, image):
         newImage = np.zeros(image.shape)
-        tempImage = self.convolveImage(image, self.kernelDeNoise)
+        tempImage = self.convolveImage(self, image, self.kernelDeNoise)
         for row in range(tempImage.shape[0]):
             for col in range(tempImage.shape[1]):
                 if tempImage[row][col] < 9:
