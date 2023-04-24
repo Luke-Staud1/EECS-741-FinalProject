@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 from Utility import Utility as util
 import sys
+import math
 # from scipy.stats import mannwhitneyu
 np.set_printoptions(threshold=sys.maxsize)
 
@@ -9,15 +10,12 @@ np.set_printoptions(threshold=sys.maxsize)
 class faceDetect():
     gallarySet = []
     probeSet = []
-    gallarySetData = []
-    probeSetData = []
-    setSize = 10
-    divideFactor = 10
+    gallaryMask = []
+    probeMask = []
+    setSize = 100
+    divideFactor = 3
 
     utility = util
-    kernelDeNoise = np.array([[1, 1, 1],
-                              [1, 1, 1],
-                              [1, 1, 1]])
     kernelBlur = np.array([[1, 4, 6, 4, 1],
                            [4, 16, 24, 16, 4],
                            [6, 24, 36, 24, 6],
@@ -28,10 +26,7 @@ class faceDetect():
                              [-1, -1, -1]])
 
     def __init__(self):
-        self.gallarySetDataA = np.zeros(
-            (self.setSize, self.divideFactor, self.divideFactor))
-        self.probeSetDataA = np.zeros(
-            (self.setSize, self.divideFactor, self.divideFactor))
+        self.kernelAverage = np.ones((self.divideFactor, self.divideFactor))
 
     def readInImages(self):
         path1 = '../GallerySet/'
@@ -42,75 +37,60 @@ class faceDetect():
             self.probeSet.append(cv2.imread(path2 + 'subject' +
                                             str(i) + '_img2.pgm', cv2.COLOR_BGR2GRAY))
 
-    def displayData(self):
-        print(self.gallarySet[1].shape)
+    def imageAverage(self, image):
+        sum = 0
+        for i in range(image.shape[0]):
+            for j in range(image.shape[1]):
+                sum += image[i][j]
+        return int(sum / (image.shape[0] * image.shape[1]))
 
     def lookForFeatures(self):
+        newGallarySet = np.zeros(np.array(self.gallarySet).shape)
+        newProbeSet = np.zeros(np.array(self.probeSet).shape)
         for z in range(len(self.gallarySet)):
 
             self.gallarySet[z] = util.convolveImage(
                 util, self.gallarySet[z], self.kernelBlur, 1.0 / 256)
             self.gallarySet[z] = util.convolveImage(
                 util, self.gallarySet[z], self.kernelBlur, 1.0 / 256)
-            self.gallarySet[z] = util.convolveImage(
-                util, self.gallarySet[z], self.kernelBlur, 1.0 / 256)
+
+            thresh = self.imageAverage(self.gallarySet[z])
+            newIm = [[]]
             for i in range(self.gallarySet[z].shape[0]):
+                temp = []
                 for j in range(self.gallarySet[z].shape[1]):
-                    quantize = self.gallarySet[z][i][j] // 64
-                    self.gallarySet[z][i][j] = quantize * 64
+                    if(self.gallarySet[z][i][j] > thresh):
+                        newGallarySet[z][i][j] = 1
+                    else:
+                        newGallarySet[z][i][j] = 0
 
         for z in range(len(self.probeSet)):
             self.probeSet[z] = util.convolveImage(
                 util, self.probeSet[z], self.kernelBlur, 1.0 / 256)
             self.probeSet[z] = util.convolveImage(
                 util, self.probeSet[z], self.kernelBlur, 1.0 / 256)
-            self.probeSet[z] = util.convolveImage(
-                util, self.probeSet[z], self.kernelBlur, 1.0 / 256)
+
+            thresh = self.imageAverage(self.probeSet[z])
+            newIm = [[]]
             for i in range(self.probeSet[z].shape[0]):
+                temp = []
                 for j in range(self.probeSet[z].shape[1]):
-                    quantize = self.probeSet[z][i][j] // 64
-                    self.probeSet[z][i][j] = quantize * 64
+                    if(self.probeSet[z][i][j] > thresh):
+                        newProbeSet[z][i][j] = 1
+                    else:
+                        newProbeSet[z][i][j] = 0
+        self.gallaryMask = newGallarySet
+        self.probeMask = newProbeSet
 
-    def splitImage(self):
-        gallary = np.array(self.gallarySet)
-        probe = np.array(self.probeSet)
-        tempProbe = []
-        tempGallary = []
-        probeAverage = []
-        gallaryAverage = []
-        setcount = int(50/self.divideFactor)
-        for i in range(len(gallary)):
-            for j in range(0, gallary[i].shape[0], setcount):
-                for k in range(0, gallary[i].shape[1], setcount):
-                    tempGallary.append(gallary[i][j:j+5, k:k+5])
-                    tempProbe.append(probe[i][j:j+5, k:k+5])
-        self.gallarySetData = np.array_split(tempGallary, self.setSize)
-        self.probeSetData = np.array_split(tempProbe, self.setSize)
-        print(np.array(self.gallarySetData).shape)
-        for i in range(len(self.gallarySetData)):
-            for j in range(len(self.gallarySetData[i])):
-                gallaryAverage.append(np.average(self.gallarySetData[i][j]))
-                probeAverage.append(np.average(self.probeSetData[i][j]))
-        self.gallarySetDataA = np.array_split(gallaryAverage, self.setSize)
-        self.ProbeSetDataA = np.array_split(probeAverage, self.setSize)
-        print(self.gallarySetDataA[1])
-        print(self.probeSetDataA[1])
-        # print(self.probeSetData)
+    def HammingDistance(self, image1, image2):
+        if len(image1) == len(image2) and len(image1[0]) == len(image2[0]):
+            difference = 0
+            for row1, row2 in zip(image1, image2):
+                for pixel1, pixel2 in zip(row1, row2):
+                    if pixel1 != pixel2:
+                        difference += 1
 
-    def averageRegions(self):
-        pass
-        # print(self.gallarySetData)
-        # print(self.probeSetData)
-
-    def diffScore(self):
-        # for i in range(len(self.gallarySetDataA)):
-        # # print(self.gallarySetDataA)
-        # print(self.gallarySetDataA)
-        # print(self.probeSetDataA)
-
-        # print(temp)
-
-        pass
+        return difference
 
     def upscale(self, image, amount):
         newimage = cv2.resize(image, (0, 0), fx=amount, fy=amount)
@@ -129,12 +109,58 @@ class faceDetect():
             cv2.waitKey(0)
             cv2.destroyAllWindows()
 
+    def splitAndAverage(self, image):
+        output = np.zeros((math.ceil(image.shape[0]/self.divideFactor),
+                           math.ceil(image.shape[0]/self.divideFactor)))
+        size = self.kernelAverage.shape[0]
+        sIndex = int(math.floor(size/2))
+        # output = np.zeros(np.array(image).shape/averageRange)
+        temp = util.convolveImage(util, np.array(
+            image), self.kernelAverage, 1.0)
+        for i in range(sIndex, image.shape[0], size):
+            for j in range(2, image.shape[1], size):
+                i_o = int((i-sIndex)/size)
+                j_o = int((j-sIndex)/size)
+                output[i_o][j_o] = temp[i][j]
+        return(output)
+
+    def computeDifference(self, image1, image2):
+        difference = 0
+        for row1, row2 in zip(image1, image2):
+            for pixel1, pixel2 in zip(row1, row2):
+                difference += abs(pixel1 - pixel2)
+        return difference
+
+    def run(self):
+        self.readInImages()
+        self.lookForFeatures()
+        upperLimit = 100
+        score_matrix = []
+        score_matrix2 = []
+        for i in range(len(self.probeMask)):
+            temp = []
+            for j in range(len(self.gallaryMask)):
+                score = self.HammingDistance(
+                    self.probeMask[i], self.gallaryMask[j])
+                temp.append(score)
+            print(i)
+            score_matrix.append(temp)
+
+        for i in range(len(self.probeMask)):
+            temp = []
+            for j in range(len(self.gallaryMask)):
+                matrix1 = self.splitAndAverage(self.probeMask[i])
+                matrix2 = self.splitAndAverage(self.gallaryMask[j])
+                score = self.computeDifference(matrix1, matrix2)
+                temp.append(score)
+            print(i)
+            score_matrix2.append(temp)
+        # print(score_matrix2)
+        util.countIncorrect(util, score_matrix)
+        util.countIncorrect(util, score_matrix2)
+        util.computeDScore(util, score_matrix)
+        util.computeDScore(util, score_matrix2)
+
 
 if __name__ == "__main__":
-    faceDetect().readInImages()
-    faceDetect().lookForFeatures()
-    faceDetect().splitImage()
-    # faceDetect().averageRegions()
-    # faceDetect().diffScore()
-    # faceDetect().upsacleSet(4)
-    # faceDetect().displayImages()
+    faceDetect().run()

@@ -6,12 +6,17 @@ class Utility():
     def __init__(self):
         pass
 
-    def countIncorecct(self, list):
+    def countIncorrect(self, matrix):
         count = 0
-        for i in range(len(list)):
-            if list[i][1] != list[i][3]:
+        for i in range(len(matrix)):
+            lowestVal = 100000000
+            for j in range(len(matrix[i])):
+                if matrix[i][j] < lowestVal:
+                    lowestVal = matrix[i][j]
+            if matrix[i][i] != lowestVal:
                 count += 1
         print(count)
+        return count
 
     def computeDScore(self, matrix):
         imposterList = []
@@ -22,6 +27,7 @@ class Utility():
                     genuineList.append(matrix[i][j])
                 else:
                     imposterList.append(matrix[i][j])
+        # print(genuineList)
         IMean = np.mean(imposterList)
         GMean = np.mean(genuineList)
         IVar = np.var(imposterList)
