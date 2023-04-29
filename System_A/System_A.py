@@ -24,13 +24,10 @@ def main():
                                 imageGName, cv2.COLOR_BGR2GRAY)
             score = ComparePlots(image1, image2)
             temp.append(score)
-            if score < closest[4]:
-                closest = [imageGName, i, imagePName, j, score]
-        score_Data.append(closest)
         score_matrix.append(temp)
         print(i)
-    Utility().countIncorecct(score_Data)
     Utility().computeDScore(score_matrix)
+    Utility().weightScore(score_matrix)
     # print(score_matrix)
     # DisplayPlots(image1, image2)
 
