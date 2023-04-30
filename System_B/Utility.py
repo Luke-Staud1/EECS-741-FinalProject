@@ -6,6 +6,9 @@ class Utility():
     def __init__(self):
         pass
 
+    def matrixToCSV(self, matrix):
+        np.savetxt("score_matrix.csv", matrix, delimiter=",")
+
     def countIncorecct(self, matrix):
         data = np.array(matrix)
         for i in range(data.shape[0]):
@@ -32,12 +35,22 @@ class Utility():
         GMean = np.mean(genuineList)
         IVar = np.var(imposterList)
         GVar = np.var(genuineList)
+        print("imposter mean: ", IMean, " genuine mean: ", GMean,
+              "Imposter Variance", IVar, "Genuine Variance", GVar)
         dScore = (math.sqrt(2)*abs(IMean - GMean)) / \
             (math.sqrt(IVar + GVar))
         # print(dScore)
         return dScore
 
-    def quadraticCurve(self, value, factor,):
+    def MakeSnipit(self, matrix, size=10):
+        output = np.zeros([size, size])
+        for i in range(size):
+            for j in range(size):
+                output[i][j] = matrix[i][j]
+        print(output)
+        self.matrixToCSV(output)
+
+    def quantizedCurve(self, value, factor):
         out = 0
         # print(factor+other)
         if value < (factor+67):
@@ -64,12 +77,15 @@ class Utility():
                             lowest100 = np.sort(lowest100)
                             break
 
-        # print(max(lowest100))
-        best = 0
+        # best = 0
         newMatrix = np.zeros(original.shape)
         for i in range(len(matrix)):
             for j in range(len(matrix[i])):
-                newMatrix[i][j] = self.quadraticCurve(
+                newMatrix[i][j] = self.quantizedCurve(
                     matrix[i][j], max(lowest100))
         temp = self.computeDScore(newMatrix)
-        print(temp)
+        self.MakeSnipit(original, 10)
+        self.MakeSnipit(newMatrix, 10)
+
+        print("D-Score: ", temp)
+        return newMatrix
