@@ -12,13 +12,13 @@ def main():
     upperLimit = 100
     for i in range(1, upperLimit):
         temp = []
-        # Used for reading Tool Image in black and white --> https://opencv.org/
+        # Used for reading Tool Image in black and white
         imagePName = 'subject' + str(i) + '_img2.pgm'
         image2 = cv2.imread(
             '../ProbeSet/' + imagePName, cv2.COLOR_BGR2GRAY)
         closest = ['', 0, '', 0, sys.maxsize]
         for j in range(1, upperLimit):
-            # Used for reading Tool Image in black and white --> https://opencv.org/
+            # Used for reading Tool Image in black and white
             imageGName = 'subject' + str(j) + '_img1.pgm'
             image1 = cv2.imread('../GallerySet/' +
                                 imageGName, cv2.COLOR_BGR2GRAY)
@@ -27,8 +27,6 @@ def main():
         score_matrix.append(temp)
         print(i)
     Utility().computeDScore(score_matrix)
-    # print(score_matrix)
-    # DisplayPlots(image1, image2)
 
 
 def Binarization(img, threshold):
@@ -50,7 +48,6 @@ def HammingDistance(image1, image2):
             for pixel1, pixel2 in zip(row1, row2):
                 if pixel1 != pixel2:
                     difference += 1
-
         return difference
 
 
