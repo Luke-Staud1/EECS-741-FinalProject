@@ -23,7 +23,8 @@ def main():
             temp.append(score)
         score_matrix.append(temp)
         print(i)
-    Utility().weightScore(score_matrix)
+    # Utility().weightScore(score_matrix)
+    Utility().MakeSnipit(score_matrix)
     Utility().computeDScore(score_matrix)
 
 

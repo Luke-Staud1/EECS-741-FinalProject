@@ -37,9 +37,8 @@ class Utility():
         GVar = np.var(genuineList)
         print("imposter mean: ", IMean, " genuine mean: ", GMean,
               "Imposter Variance", IVar, "Genuine Variance", GVar)
-        dScore = (math.sqrt(2)*abs(IMean - GMean)) / \
-            (math.sqrt(IVar + GVar))
-        # print(dScore)
+        dScore = (math.sqrt(2)*abs(GMean - IMean)) / (math.sqrt(IVar + GVar))
+        print(dScore)
         return dScore
 
     def MakeSnipit(self, matrix, size=10):
@@ -83,9 +82,14 @@ class Utility():
             for j in range(len(matrix[i])):
                 newMatrix[i][j] = self.quantizedCurve(
                     matrix[i][j], max(lowest100))
+        # self.countIncorecct(original)
+        # self.countIncorecct(newMatrix)
         temp = self.computeDScore(newMatrix)
-        self.MakeSnipit(original, 10)
+        temp1 = self.computeDScore(original)
+
+        # self.MakeSnipit(original, 10)
         self.MakeSnipit(newMatrix, 10)
 
         print("D-Score: ", temp)
+        print("D-Score1: ", temp1)
         return newMatrix
