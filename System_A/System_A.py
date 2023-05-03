@@ -9,7 +9,7 @@ def main():
     score_Data = []
     score_matrix = []
 
-    upperLimit = 100
+    upperLimit = 101
     for i in range(1, upperLimit):
         temp = []
         # Used for reading Tool Image in black and white

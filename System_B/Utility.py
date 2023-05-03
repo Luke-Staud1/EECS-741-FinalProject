@@ -42,7 +42,7 @@ class Utility():
               "Imposter Variance", IVar, "Genuine Variance", GVar)
         dScore = (math.sqrt(2)*abs(GMean - IMean)) / \
             (math.sqrt(IVar + GVar))  # compute d-score
-        print(dScore)
+        print("d-score: ", dScore)
         return dScore
 
     def MakeSnipit(self, matrix, size=10):  # make a snipit of the matrix for the report
@@ -84,6 +84,4 @@ class Utility():
                 newMatrix[i][j] = self.quantizedCurve(
                     matrix[i][j], max(lowest100))
         temp = self.computeDScore(newMatrix)
-        self.MakeSnipit(newMatrix, 10)
-        print("D-Score: ", temp)
         return newMatrix

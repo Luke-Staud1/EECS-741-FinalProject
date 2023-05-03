@@ -24,7 +24,10 @@ def main():
             temp.append(score)
         score_matrix.append(temp)
         print(i)
+    print("System B D-Score: ")
     Utility().computeDScore(score_matrix)
+    print("(extra)System C identification D-Score: ")
+    Utility().weightScore(score_matrix)
 
 
 def loadGallery(PATH):
