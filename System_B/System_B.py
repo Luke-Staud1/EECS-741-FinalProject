@@ -1,3 +1,4 @@
+# System_B.py
 import cv2  # For reading the image
 import matplotlib.pyplot as plt  # for displaying Images / Plots
 from Utility import Utility
@@ -23,8 +24,6 @@ def main():
             temp.append(score)
         score_matrix.append(temp)
         print(i)
-    # Utility().weightScore(score_matrix)
-    Utility().MakeSnipit(score_matrix)
     Utility().computeDScore(score_matrix)
 
 
